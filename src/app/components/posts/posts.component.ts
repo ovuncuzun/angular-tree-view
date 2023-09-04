@@ -1,57 +1,21 @@
 import { NestedTreeControl } from '@angular/cdk/tree';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, TemplateRef, ViewChild } from '@angular/core';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
 import { PostsService } from 'src/app/services/posts.service';
-import { Subscription, from, map } from 'rxjs';
+import { Subscription, map } from 'rxjs';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import { MatSelectChange } from '@angular/material/select';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 
-interface FoodNode {
-  name: string;
-  children?: FoodNode[];
-}
-
-interface Posts {
+interface Post {
   id: number;
   location: string;
-  time: Date,
+  time: string,
   author: string,
-  text: string
-}
-
-const TREE_DATA: FoodNode[] = [
-  {
-    name: 'Fruit',
-    children: [{ name: 'Apple' }, { name: 'Banana' }, { name: 'Fruit loops' }],
-  },
-  {
-    name: 'Vegetables',
-    children: [
-      {
-        name: 'Green',
-        children: [{ name: 'Broccoli' }, { name: 'Brussels sprouts' }],
-      },
-      {
-        name: 'Orange',
-        children: [{ name: 'Pumpkins' }, { name: 'Carrots' }],
-      },
-    ],
-  },
-];
-
-const TREE_DATA2: any = [
-  {
-    name: '12345',
-    children: [{ name: '777' }, { name: '8888' }],
-  }
-];
-
-interface FlatNode {
-  expandable: boolean;
-  name: string;
-  level: number;
+  text: string,
+  week: number
 }
 
 @Component({
@@ -61,11 +25,13 @@ interface FlatNode {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PostsComponent {
+  @ViewChild('modalContent', { static: true }) modalContent: TemplateRef<any> | undefined;
   subscription: Subscription | undefined;
   treeControl = new NestedTreeControl((node: any) => node.children);
   dataSource = new MatTreeNestedDataSource();
+  modalData: Post;
 
-  constructor(private postsService: PostsService) {
+  constructor(private postsService: PostsService, private modal: NgbModal) {
   }
 
   ngOnInit() {
@@ -74,9 +40,10 @@ export class PostsComponent {
 
   getPostsDataGroupBy(groupBy) {
     this.subscription = this.postsService.getTimeTableData()
-      .pipe(map((posts: any) => posts.map(post => {
+      .pipe(map((posts: Post[]) => posts.map((post: Post) => {
         let currentDate = new Date(+post.time * 1000);
         var weekNumber = moment(currentDate).isoWeek();
+        post.time = moment(currentDate).format('DD/MM/YYYY, h:mm:ss a');
         post.week = weekNumber;
         return post;
       })))
@@ -101,5 +68,10 @@ export class PostsComponent {
 
   ngOnDestroy() {
     this.subscription.unsubscribe();
+  }
+
+  postClicked(node: Post) {
+    this.modalData = node;
+    this.modal.open(this.modalContent, { size: 'lg' });
   }
 }

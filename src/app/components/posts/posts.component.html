@@ -8,8 +8,10 @@
 </mat-form-field>
 
 <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="tree">
-    <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle>
-        "{{ node.text }}" By: {{ node.author }}
+    <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle (click)="postClicked(node)">
+        "{{ node.text }}"
+        <mat-icon>person_pin</mat-icon> <span class="author"> {{ node.author }}</span>
+        <mat-icon> location_on</mat-icon> {{node.location }}
     </mat-tree-node>
     <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
         <div class="mat-tree-node">
@@ -25,3 +27,31 @@
         </div>
     </mat-nested-tree-node>
 </mat-tree>
+
+<ng-template #modalContent let-close="close">
+    <div class="modal-header">
+        <h5 class="modal-title">Edit Post</h5>
+    </div>
+    <div class="modal-body">
+        <label>Author:</label>
+        <input type="text" class="form-control" id="author" [(ngModel)]="modalData.author">
+    </div>
+    <div class="modal-body">
+        <label>Location:</label>
+        <input type="text" class="form-control" id="author" [(ngModel)]="modalData.location">
+    </div>
+    <div class="modal-body">
+        <label>Text:</label>
+        <input type="text" class="form-control" id="author" [(ngModel)]="modalData.text" disabled>
+    </div>
+    <div class="modal-body">
+        <label>Time:</label>
+        <input type="text" class="form-control" id="author" [(ngModel)]="modalData.time" disabled>
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" (click)="close()">
+            OK
+        </button>
+    </div>
+</ng-template>
