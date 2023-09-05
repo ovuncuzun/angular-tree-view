@@ -35,7 +35,7 @@ export class PostsComponent {
   }
 
   ngOnInit() {
-    this.getPostsDataGroupBy('author');
+    this.getPostsDataGroupBy('location');
   }
 
   getPostsDataGroupBy(groupBy) {
